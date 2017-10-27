@@ -7,9 +7,10 @@ from UM.Version import Version
 from UM.Logger import Logger
 from UM.Job import Job
 
-import urllib3
+import urllib.request
 import platform
 import json
+import codecs
 
 from PyQt5.QtCore import QUrl
 from PyQt5.QtGui import QDesktopServices
@@ -43,8 +44,8 @@ class UpdateCheckerJob(Job):
         Logger.log("i", "Checking for new version of %s" % application_name)
         try:
             headers = {"User-Agent": "%s - %s" % (application_name, Application.getInstance().getVersion())}
-            http = urllib3.PoolManager()
-            latest_version_file = http.request("GET", self._url,headers=headers)
+            request = urllib.request.Request(self._url, headers = headers)
+            latest_version_file = urllib.request.urlopen(request)
         except Exception as e:
             Logger.log("w", "Failed to check for new version: %s" % e)
             if not self.silent:
@@ -52,7 +53,8 @@ class UpdateCheckerJob(Job):
             return
 
         try:
-            data = json.loads(latest_version_file.data.decode("utf-8"))
+            reader = codecs.getreader("utf-8")
+            data = json.load(reader(latest_version_file))
             try:
                 if Application.getInstance().getVersion() is not "master":
                     local_version = Version(Application.getInstance().getVersion())
