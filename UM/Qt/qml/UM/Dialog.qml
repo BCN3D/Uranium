@@ -18,6 +18,7 @@ Window {
 
     property int margin: Screen.devicePixelRatio * 8;
     property bool closeOnAccept: true;  // Automatically close the window when the window is "accepted" (eg using the return key)
+    property bool closeOnReject: true;
 
     default property alias contents: contentItem.children;
 
@@ -35,7 +36,9 @@ Window {
     }
 
     function reject() {
-        base.visible = false;
+        if (base.closeOnReject) {
+            base.visible = false;
+        }
         base.rejected();
     }
 
