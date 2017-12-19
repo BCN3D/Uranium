@@ -64,6 +64,8 @@ class OutputDevicesModel(ListModel):
         self._items.clear()
         devices = self._device_manager.getOutputDevices()
         for device in devices:
+            if device.getDescription() == "Print via USB":
+                continue
             self._items.append({
                 "id": device.getId(),
                 "name": device.getName(),
