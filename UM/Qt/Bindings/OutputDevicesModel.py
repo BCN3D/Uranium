@@ -75,7 +75,7 @@ class OutputDevicesModel(ListModel):
                 "priority": device.getPriority()
             })
 
-        self.sort(lambda i: -i["priority"])
+        # self.sort(lambda i: -i["priority"])
         self.endResetModel()
 
         self.outputDevicesChanged.emit()
