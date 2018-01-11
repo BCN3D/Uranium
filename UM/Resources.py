@@ -371,102 +371,102 @@ class Resources:
             if Platform.isWindows():
                 cls.__cache_storage_path = os.path.join(cls.__cache_storage_path, "cache")
         Logger.log("d", "Cache storage path is %s", cls.__cache_storage_path)
-        if not os.path.exists(cls.__config_storage_path):
-            cls._copyLatestDirsIfPresent()
+        # if not os.path.exists(cls.__config_storage_path):
+        #     cls._copyLatestDirsIfPresent()
 
         cls.__paths.insert(0, cls.__data_storage_path)
 
     ##  Copies the directories of the latest version on this machine if present, so the upgrade will use the copies
     #   as the base for upgrade. See CURA-3529 for more details.
-    @classmethod
-    def _copyLatestDirsIfPresent(cls):
-        # Paths for the version we are running right now
-        this_version_config_path = Resources.getConfigStoragePath()
-        this_version_data_path = Resources.getDataStoragePath()
+    # @classmethod
+    # def _copyLatestDirsIfPresent(cls):
+    #     # Paths for the version we are running right now
+    #     this_version_config_path = Resources.getConfigStoragePath()
+    #     this_version_data_path = Resources.getDataStoragePath()
+    #
+    #     # Find the latest existing directories on this machine
+    #     config_root_path_list = Resources._getPossibleConfigStorageRootPathList()
+    #     data_root_path_list = Resources._getPossibleDataStorageRootPathList()
+    #
+    #     Logger.log("d", "Found config: %s and data: %s", config_root_path_list, data_root_path_list)
+    #
+    #     latest_config_path = Resources._findLatestDirInPaths(config_root_path_list, dir_type="config")
+    #     latest_data_path = Resources._findLatestDirInPaths(data_root_path_list, dir_type="data")
+    #     Logger.log("d", "Latest config path: %s and latest data path: %s", latest_config_path, latest_data_path)
+    #     if not latest_config_path:
+    #         # No earlier storage dirs found, do nothing
+    #         return
+    #
+    #     if latest_config_path == this_version_config_path:
+    #         # If the directory found matches the current version, do nothing
+    #         return
+    #
+    #     # Prevent circular import
+    #     import UM.VersionUpgradeManager
+    #     UM.VersionUpgradeManager.VersionUpgradeManager.getInstance().copyVersionFolder(latest_config_path, this_version_config_path)
+    #     # If the data dir is the same as the config dir, don't copy again
+    #     if latest_data_path is not None and os.path.exists(latest_data_path) and latest_data_path != latest_config_path:
+    #         UM.VersionUpgradeManager.VersionUpgradeManager.getInstance().copyVersionFolder(latest_data_path, this_version_data_path)
+    #
+    #     # Remove "cache" if we copied it together with config
+    #     suspected_cache_path = os.path.join(this_version_config_path, "cache")
+    #     if os.path.exists(suspected_cache_path):
+    #         shutil.rmtree(suspected_cache_path)
 
-        # Find the latest existing directories on this machine
-        config_root_path_list = Resources._getPossibleConfigStorageRootPathList()
-        data_root_path_list = Resources._getPossibleDataStorageRootPathList()
+    # @classmethod
+    # def _findLatestDirInPaths(cls, search_path_list, dir_type="config"):
+    #     # version dir name must match: <digit(s)>.<digit(s)><whatever>
+    #     version_regex = re.compile(r'^[0-9]+\.[0-9]+.*$')
+    #     check_dir_type_func_dict = {"config": Resources._isNonVersionedConfigDir,
+    #                                 "data": Resources._isNonVersionedDataDir,
+    #                                 }
+    #     check_dir_type_func = check_dir_type_func_dict[dir_type]
+    #
+    #     latest_config_path = None
+    #     for search_path in search_path_list:
+    #         if not os.path.exists(search_path):
+    #             continue
+    #
+    #         if check_dir_type_func(cls, search_path):
+    #             latest_config_path = search_path
+    #             break
+    #
+    #         storage_dir_name_list = next(os.walk(search_path))[1]
+    #         if storage_dir_name_list:
+    #             storage_dir_name_list = sorted(storage_dir_name_list, reverse=True)
+    #             # for now we use alphabetically ordering to determine the latest version (excluding master)
+    #             for dir_name in storage_dir_name_list:
+    #                 if dir_name.endswith("master"):
+    #                     continue
+    #                 if version_regex.match(dir_name) is None:
+    #                     continue
+    #
+    #                 # make sure that the version we found is not newer than the current version
+    #                 if version_regex.match(cls.ApplicationVersion):
+    #                     later_version = sorted([cls.ApplicationVersion, dir_name], reverse=True)[0]
+    #                     if cls.ApplicationVersion != later_version:
+    #                         continue
+    #
+    #                 latest_config_path = os.path.join(search_path, dir_name)
+    #                 break
+    #         if latest_config_path is not None:
+    #             break
+    #     return latest_config_path
 
-        Logger.log("d", "Found config: %s and data: %s", config_root_path_list, data_root_path_list)
+    # def _isNonVersionedDataDir(cls, check_path):
+    #     # checks if the given path is (probably) a valid app directory for a version earlier than 2.6
+    #     if not cls.__expected_dir_names_in_data:
+    #         return True
+    #
+    #     dirs, files = next(os.walk(check_path))[1:]
+    #     valid_dir_names = [dn for dn in dirs if dn in Resources.__expected_dir_names_in_data]
+    #     return valid_dir_names
 
-        latest_config_path = Resources._findLatestDirInPaths(config_root_path_list, dir_type="config")
-        latest_data_path = Resources._findLatestDirInPaths(data_root_path_list, dir_type="data")
-        Logger.log("d", "Latest config path: %s and latest data path: %s", latest_config_path, latest_data_path)
-        if not latest_config_path:
-            # No earlier storage dirs found, do nothing
-            return
-
-        if latest_config_path == this_version_config_path:
-            # If the directory found matches the current version, do nothing
-            return
-
-        # Prevent circular import
-        import UM.VersionUpgradeManager
-        UM.VersionUpgradeManager.VersionUpgradeManager.getInstance().copyVersionFolder(latest_config_path, this_version_config_path)
-        # If the data dir is the same as the config dir, don't copy again
-        if latest_data_path is not None and os.path.exists(latest_data_path) and latest_data_path != latest_config_path:
-            UM.VersionUpgradeManager.VersionUpgradeManager.getInstance().copyVersionFolder(latest_data_path, this_version_data_path)
-
-        # Remove "cache" if we copied it together with config
-        suspected_cache_path = os.path.join(this_version_config_path, "cache")
-        if os.path.exists(suspected_cache_path):
-            shutil.rmtree(suspected_cache_path)
-
-    @classmethod
-    def _findLatestDirInPaths(cls, search_path_list, dir_type="config"):
-        # version dir name must match: <digit(s)>.<digit(s)><whatever>
-        version_regex = re.compile(r'^[0-9]+\.[0-9]+.*$')
-        check_dir_type_func_dict = {"config": Resources._isNonVersionedConfigDir,
-                                    "data": Resources._isNonVersionedDataDir,
-                                    }
-        check_dir_type_func = check_dir_type_func_dict[dir_type]
-
-        latest_config_path = None
-        for search_path in search_path_list:
-            if not os.path.exists(search_path):
-                continue
-
-            if check_dir_type_func(cls, search_path):
-                latest_config_path = search_path
-                break
-
-            storage_dir_name_list = next(os.walk(search_path))[1]
-            if storage_dir_name_list:
-                storage_dir_name_list = sorted(storage_dir_name_list, reverse=True)
-                # for now we use alphabetically ordering to determine the latest version (excluding master)
-                for dir_name in storage_dir_name_list:
-                    if dir_name.endswith("master"):
-                        continue
-                    if version_regex.match(dir_name) is None:
-                        continue
-
-                    # make sure that the version we found is not newer than the current version
-                    if version_regex.match(cls.ApplicationVersion):
-                        later_version = sorted([cls.ApplicationVersion, dir_name], reverse=True)[0]
-                        if cls.ApplicationVersion != later_version:
-                            continue
-
-                    latest_config_path = os.path.join(search_path, dir_name)
-                    break
-            if latest_config_path is not None:
-                break
-        return latest_config_path
-
-    def _isNonVersionedDataDir(cls, check_path):
-        # checks if the given path is (probably) a valid app directory for a version earlier than 2.6
-        if not cls.__expected_dir_names_in_data:
-            return True
-
-        dirs, files = next(os.walk(check_path))[1:]
-        valid_dir_names = [dn for dn in dirs if dn in Resources.__expected_dir_names_in_data]
-        return valid_dir_names
-
-    def _isNonVersionedConfigDir(cls, check_path):
-        dirs, files = next(os.walk(check_path))[1:]
-        valid_file_names = [fn for fn in files if fn.endswith(".cfg")]
-
-        return bool(valid_file_names)
+    # def _isNonVersionedConfigDir(cls, check_path):
+    #     dirs, files = next(os.walk(check_path))[1:]
+    #     valid_file_names = [fn for fn in files if fn.endswith(".cfg")]
+    #
+    #     return bool(valid_file_names)
 
     @classmethod
     def addExpectedDirNameInData(cls, dir_name):
