@@ -214,7 +214,7 @@ class OutputDeviceManager():
     def _findHighestPriorityDevice(self):
         device = None
         for key, value in self._output_devices.items():
-            if not device or value.getPriority() > device.getPriority():
+            if (not device or value.getPriority() > device.getPriority()) and value.getDescription() != "Print via USB":
                 device = value
 
         return device
