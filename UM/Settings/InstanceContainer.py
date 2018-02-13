@@ -353,7 +353,8 @@ class InstanceContainer(QObject, ContainerInterface, PluginObject):
         self._instantiateCachedValues()
         all_keys = self._instances.copy()
         for key in all_keys:
-            self.removeInstance(key, postpone_emit=True)
+            if key != "print_mode":
+                self.removeInstance(key, postpone_emit=True)
         self.sendPostponedEmits()
 
     ##  Get all the keys of the instances of this container
