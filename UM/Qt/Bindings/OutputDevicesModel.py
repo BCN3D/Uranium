@@ -1,7 +1,7 @@
 # Copyright (c) 2015 Ultimaker B.V.
 # Uranium is released under the terms of the LGPLv3 or higher.
 
-from PyQt5.QtCore import Qt, pyqtSlot, pyqtProperty, pyqtSignal
+from PyQt5.QtCore import Qt, pyqtSlot, pyqtProperty, pyqtSignal, QModelIndex
 
 from UM.Application import Application
 from UM.Qt.ListModel import ListModel
@@ -64,16 +64,33 @@ class OutputDevicesModel(ListModel):
         self._items.clear()
         devices = self._device_manager.getOutputDevices()
         for device in devices:
-            self._items.append({
-                "id": device.getId(),
-                "name": device.getName(),
-                "short_description": device.getShortDescription(),
-                "description": device.getDescription(),
-                "icon_name": device.getIconName(),
-                "priority": device.getPriority()
-            })
+            if device.getName() != "USB printing":
+                self._items.append({
+                    "id": device.getId(),
+                    "name": device.getName(),
+                    "short_description": device.getShortDescription(),
+                    "description": device.getDescription(),
+                    "icon_name": device.getIconName(),
+                    "priority": device.getPriority()
+                })
 
-        self.sort(lambda i: -i["priority"])
+        # self.sort(lambda i: -i["priority"])
         self.endResetModel()
 
         self.outputDevicesChanged.emit()
+
+    ##  Add an item to the list.
+    #   \param item The item to add.
+    @pyqtSlot(dict)
+    def appendItem(self, item):
+        self.insertItem(len(self._items), item)
+
+    ##  Insert an item into the list at an index.
+    #   \param index The index where to insert.
+    #   \param item The item to add.
+    @pyqtSlot(int, dict)
+    def insertItem(self, index, item):
+        self.beginInsertRows(QModelIndex(), index, index)
+        self._items.insert(index, item)
+        self.endInsertRows()
+        self.itemsChanged.emit()
