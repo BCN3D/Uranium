@@ -60,26 +60,25 @@ class UpdateCheckerJob(Job):
                     Message(i18n_catalog.i18nc("@info", "The version you are using does not support checking for updates."), title = i18n_catalog.i18nc("@info:title", "Version Upgrade")).show()
                 return
 
-            if application_name in data:
-                for key, value in data[application_name].items():
-                    if "major" in value and "minor" in value and "revision" in value and "url" in value:
-                        os = key
-                        if platform.system() == os: #TODO: add architecture check
-                            newest_version = Version([int(value["major"]), int(value["minor"]), int(value["revision"])])
-                            if local_version < newest_version:
-                                Logger.log("i", "Found a new version of the software. Spawning message")
-                                message = Message(i18n_catalog.i18nc("@info", "A new version is available!"), title = i18n_catalog.i18nc("@info:title", "Version Upgrade"))
-                                message.addAction("download", i18n_catalog.i18nc("@action:button", "Download"), "[no_icon]", "[no_description]")
-                                if self._set_download_url_callback:
-                                    self._set_download_url_callback(value["url"])
-                                message.actionTriggered.connect(self._callback)
-                                message.show()
-                                no_new_version = False
-                                break
-                    else:
-                        Logger.log("w", "Could not find version information or download url for update.")
-            else:
-                Logger.log("w", "Did not find any version information for %s." % application_name)
+            latest_version_array = data["tag_name"].split("v")[1].split(".")
+            latest_version = Version(list(map(int, latest_version_array)))
+            if local_version < latest_version:
+                Logger.log("i", "Found a new version of the software. Spawning message")
+                message = Message(i18n_catalog.i18nc("@info", "A new version is available!"),
+                                  title=i18n_catalog.i18nc("@info:title", "Version Upgrade"))
+                message.addAction("download", i18n_catalog.i18nc("@action:button", "Download"), "[no_icon]", "[no_description]")
+                browser_download_url = ""
+                if self._set_download_url_callback:
+                    for asset in data["assets"]:
+                        os = "Windows" if ".exe" in asset["name"] else "Darwin" if ".dmg" in asset["name"] else "Linux"
+                        if os == platform.system():
+                            browser_download_url = asset["browser_download_url"]
+                            break
+                    self._set_download_url_callback(browser_download_url)
+                message.actionTriggered.connect(self._callback)
+                message.show()
+                no_new_version = False
+
         except Exception:
             Logger.logException("e", "Exception in update checker while parsing the JSON file.")
             Message(i18n_catalog.i18nc("@info", "An error occurred while checking for updates."), title = i18n_catalog.i18nc("@info:title", "Error")).show()
