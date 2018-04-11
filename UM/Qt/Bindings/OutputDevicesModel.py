@@ -64,17 +64,16 @@ class OutputDevicesModel(ListModel):
         self._items.clear()
         devices = self._device_manager.getOutputDevices()
         for device in devices:
-            if device.getName() != "USB printing":
-                self._items.append({
-                    "id": device.getId(),
-                    "name": device.getName(),
-                    "short_description": device.getShortDescription(),
-                    "description": device.getDescription(),
-                    "icon_name": device.getIconName(),
-                    "priority": device.getPriority()
-                })
+            self._items.append({
+                "id": device.getId(),
+                "name": device.getName(),
+                "short_description": device.getShortDescription(),
+                "description": device.getDescription(),
+                "icon_name": device.getIconName(),
+                "priority": device.getPriority()
+            })
 
-        # self.sort(lambda i: -i["priority"])
+        self.sort(lambda i: -i["priority"])
         self.endResetModel()
 
         self.outputDevicesChanged.emit()
