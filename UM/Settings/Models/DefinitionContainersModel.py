@@ -15,12 +15,14 @@ class DefinitionContainersModel(ListModel):
     NameRole = Qt.UserRole + 1          # Human readable name (string)
     IdRole = Qt.UserRole + 2            # Unique ID of Definition
     SectionRole = Qt.UserRole + 3       # Section of definition / machine. (string)
+    AdditionalInfoRole = Qt.UserRole + 4
 
     def __init__(self, parent = None):
         super().__init__(parent)
         self.addRoleName(self.NameRole, "name")
         self.addRoleName(self.IdRole, "id")
         self.addRoleName(self.SectionRole, "section")
+        self.addRoleName(self.AdditionalInfoRole, "additional_info")
 
         # Listen to changes
         ContainerRegistry.getInstance().containerAdded.connect(self._onContainerChanged)
@@ -52,6 +54,7 @@ class DefinitionContainersModel(ListModel):
                 "id": metadata["id"],
                 "metadata": metadata,
                 "section": metadata.get(self._section_property, ""),
+                "additional_info": metadata.get("additional_info", "")
             })
         self.setItems(items)
 
