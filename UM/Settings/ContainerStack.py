@@ -6,6 +6,7 @@ import io
 from typing import Any, cast, Dict, List, Optional, Set
 
 from PyQt5.QtCore import QObject, pyqtProperty, pyqtSignal
+from PyQt5.QtQml import QQmlEngine
 import UM.FlameProfiler
 
 from UM.Settings.SettingDefinition import SettingDefinition
@@ -56,6 +57,7 @@ class ContainerStack(QObject, ContainerInterface, PluginObject):
         # Note that we explicitly pass None as QObject parent here. This is to be able
         # to support pickling.
         super().__init__(parent = None, *args, **kwargs)
+        QQmlEngine.setObjectOwnership(self, QQmlEngine.CppOwnership)
 
         self._metadata = {
             "id": stack_id,
