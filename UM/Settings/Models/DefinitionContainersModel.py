@@ -16,6 +16,8 @@ class DefinitionContainersModel(ListModel):
     IdRole = Qt.UserRole + 2            # Unique ID of Definition
     SectionRole = Qt.UserRole + 3       # Section of definition / machine. (string)
     AdditionalInfoRole = Qt.UserRole + 4
+    IsNetworkMachineRole = Qt.UserRole + 5
+    SerialNumberRole = Qt.UserRole + 6
 
     def __init__(self, parent = None):
         super().__init__(parent)
@@ -23,6 +25,8 @@ class DefinitionContainersModel(ListModel):
         self.addRoleName(self.IdRole, "id")
         self.addRoleName(self.SectionRole, "section")
         self.addRoleName(self.AdditionalInfoRole, "additional_info")
+        self.addRoleName(self.IsNetworkMachineRole, "is_network_machine")
+        self.addRoleName(self.SerialNumberRole, "serial_number")
 
         # Listen to changes
         ContainerRegistry.getInstance().containerAdded.connect(self._onContainerChanged)
@@ -54,7 +58,9 @@ class DefinitionContainersModel(ListModel):
                 "id": metadata["id"],
                 "metadata": metadata,
                 "section": metadata.get(self._section_property, ""),
-                "additional_info": metadata.get("additional_info", "")
+                "additional_info": metadata.get("additional_info", ""),
+                "is_network_machine": False,
+                "serial_number": None
             })
         self.setItems(items)
 

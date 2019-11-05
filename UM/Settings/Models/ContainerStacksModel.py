@@ -1,4 +1,5 @@
 from UM.Qt.ListModel import ListModel
+from UM import Util
 
 from PyQt5.QtCore import pyqtSlot, pyqtProperty, Qt, pyqtSignal
 
@@ -11,12 +12,14 @@ class ContainerStacksModel(ListModel):
     NameRole = Qt.UserRole + 1
     IdRole = Qt.UserRole + 2
     MetaDataRole = Qt.UserRole + 3
+    IsNetworkMachineRole = Qt.UserRole + 4
 
     def __init__(self, parent = None):
         super().__init__(parent)
         self.addRoleName(self.NameRole, "name")
         self.addRoleName(self.IdRole, "id")
         self.addRoleName(self.MetaDataRole, "metadata")
+        self.addRoleName(self.IsNetworkMachineRole, "is_network_machine")
         self._container_stacks = []
 
         # Listen to changes
@@ -52,9 +55,12 @@ class ContainerStacksModel(ListModel):
                 metadata["definition_name"] = container.getBottom().getName()
 
             container.nameChanged.connect(self._onContainerNameChanged)
-            items.append({"name": container.getName(),
-                             "id": container.getId(),
-                             "metadata": metadata})
+            items.append({
+                "name": container.getName(),
+                "id": container.getId(),
+                "is_network_machine": Util.parseBool(container.getMetaDataEntry("is_network_machine", False)),
+                "metadata": metadata
+            })
         self.setItems(items)
 
     ##  Set the filter of this model based on a string.
