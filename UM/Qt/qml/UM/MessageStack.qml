@@ -213,7 +213,18 @@ ListView {
                                     }
                                     else
                                     {
-                                        return UM.Theme.getColor("black");
+                                        if(control.pressed)
+                                        {
+                                            return UM.Theme.getColor("message_button_text_active");
+                                        }
+                                        else if(control.hovered)
+                                        {
+                                            return UM.Theme.getColor("primary");
+                                        }
+                                        else
+                                        {
+                                            return UM.Theme.getColor("black");
+                                        }
                                     }
                                 }
 
