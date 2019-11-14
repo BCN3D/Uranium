@@ -39,8 +39,12 @@ _eric6project/Uranium.e4t
 .settings/org.eclipse.mylyn.tasks.ui.prefs
 .pydevproject
 
-## IntelliJ projects
+# Editors and IDEs.
+*.kate-swp
+*.qm
 .idea
+cura.desktop
+.vscode
 
 #Test results.
 tests/Settings/instances/machine_settings_with_overrides_test.cfg
